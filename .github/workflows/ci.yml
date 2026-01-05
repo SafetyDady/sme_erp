@@ -1,0 +1,183 @@
+name: SME ERP CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop, staging]
+  pull_request:
+    branches: [main]
+
+env:
+  PYTHON_VERSION: 3.9
+
+jobs:
+  # Phase 1: Security Gates (Auth)
+  security-tests:
+    runs-on: ubuntu-latest
+    name: "🔒 Security Gates (Auth & RBAC)"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio httpx
+
+      - name: Test Database Setup
+        run: |
+          cd backend
+          python -c "
+          from app.db.session import engine
+          from app.db.base import Base
+          Base.metadata.create_all(bind=engine)
+          print('✅ Database setup complete')
+          "
+
+      - name: "Gate 1: Authentication (401/403)"
+        run: |
+          cd backend
+          pytest tests/test_ci_auth_gates.py -v
+          echo "✅ Authentication gates PASSED"
+
+      - name: "Gate 2: RBAC Matrix"
+        run: |
+          cd backend
+          pytest tests/test_ci_rbac_matrix.py -v
+          echo "✅ RBAC matrix PASSED"
+
+      - name: "Gate 3: Audit Compliance"
+        run: |
+          cd backend  
+          pytest tests/test_ci_audit_compliance.py -v
+          echo "✅ Audit compliance PASSED"
+
+  # Phase 2: Health & Readiness
+  health-checks:
+    runs-on: ubuntu-latest
+    name: "🏥 Health & Readiness"
+    needs: security-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio httpx
+
+      - name: Test Health Endpoints
+        run: |
+          cd backend
+          python -c "
+          import asyncio
+          from httpx import AsyncClient
+          from app.main import app
+
+          async def test_health():
+              async with AsyncClient(app=app, base_url='http://test') as client:
+                  # Test all health endpoints
+                  endpoints = ['/health/live', '/health/ready', '/health/startup']
+                  for endpoint in endpoints:
+                      response = await client.get(endpoint)
+                      assert response.status_code == 200, f'{endpoint} failed'
+                      print(f'✅ {endpoint} OK')
+
+          asyncio.run(test_health())
+          print('✅ All health checks PASSED')
+          "
+
+  # Phase 3: Environment Validation
+  environment-tests:
+    runs-on: ubuntu-latest
+    name: "🌍 Environment Configs"
+    needs: health-checks
+    strategy:
+      matrix:
+        env: [dev, staging]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate ${{ matrix.env }} config
+        run: |
+          cd backend
+
+          # Check config file exists
+          if [ ! -f ".env.${{ matrix.env }}" ]; then
+            echo "❌ Missing .env.${{ matrix.env }}"
+            exit 1
+          fi
+
+          # Check required variables
+          required_vars="ENVIRONMENT DATABASE_URL JWT_SECRET_KEY"
+          for var in $required_vars; do
+            if ! grep -q "^$var=" ".env.${{ matrix.env }}"; then
+              echo "❌ Missing $var in .env.${{ matrix.env }}"
+              exit 1
+            fi
+          done
+
+          echo "✅ .env.${{ matrix.env }} validation PASSED"
+
+  # Phase 4: Migration Discipline
+  migration-tests:
+    runs-on: ubuntu-latest
+    name: "📊 Migration Discipline"
+    needs: environment-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Test Migration Idempotency
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+          # Test database creation is idempotent
+          python -c "
+          from app.db.session import engine
+          from app.db.base import Base
+
+          # Run migrations twice - should not fail
+          Base.metadata.create_all(bind=engine)
+          Base.metadata.create_all(bind=engine)
+          print('✅ Migrations are idempotent')
+          "
+
+  # Phase 5: Quality Lock
+  quality-lock:
+    runs-on: ubuntu-latest
+    name: "🔒 Quality Lock"
+    needs: [security-tests, health-checks, environment-tests, migration-tests]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Quality Gate Summary
+        run: |
+          echo "🎉 ALL CI GATES PASSED!"
+          echo "✅ Authentication & Authorization"
+          echo "✅ RBAC Matrix Validated"  
+          echo "✅ Audit Compliance Verified"
+          echo "✅ Health Checks Operational"
+          echo "✅ Environment Configs Valid"
+          echo "✅ Migration Discipline Confirmed"
+          echo ""
+          echo "🚀 READY FOR PRODUCTION DEPLOYMENT"
+          echo "📋 Evidence: All pytest gates passed"
+          echo "🔐 Security: Auth + RBAC + Audit verified"
+          echo "💚 Ops: Health checks + configs validated"

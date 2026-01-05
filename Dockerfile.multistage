@@ -1,0 +1,131 @@
+# Phase 9: Multi-stage Dockerfile for Production Scaling
+# Optimized for horizontal scaling and security
+
+# =============================================================================
+# Stage 1: Python Dependencies Builder
+# =============================================================================
+FROM python:3.11-slim as builder
+
+# Install system dependencies for building
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+# Install additional production dependencies
+RUN pip install --no-cache-dir gunicorn uvicorn[standard] psutil
+
+# =============================================================================
+# Stage 2: Production Runtime
+# =============================================================================
+FROM python:3.11-slim as production
+
+# Create non-root user for security
+RUN groupadd -r sme_erp && useradd -r -g sme_erp sme_erp
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Copy virtual environment from builder stage
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Create application directories
+RUN mkdir -p /app/logs /app/tmp \
+    && chown -R sme_erp:sme_erp /app
+
+# Set working directory
+WORKDIR /app
+
+# Copy application code
+COPY --chown=sme_erp:sme_erp . .
+
+# Environment variables for production
+ENV PYTHONPATH=/app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV ENVIRONMENT=production
+ENV LOG_LEVEL=INFO
+ENV UVICORN_HOST=0.0.0.0
+ENV UVICORN_PORT=8000
+ENV UVICORN_WORKERS=1
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/health/ready || exit 1
+
+# Switch to non-root user
+USER sme_erp
+
+# Expose port
+EXPOSE 8000
+
+# Start command with production server
+CMD ["sh", "-c", "uvicorn app.main:app --host $UVICORN_HOST --port $UVICORN_PORT --workers $UVICORN_WORKERS"]
+
+# =============================================================================
+# Stage 3: Development Runtime (Optional)
+# =============================================================================
+FROM production as development
+
+# Switch back to root for development tools installation
+USER root
+
+# Install development dependencies
+RUN pip install --no-cache-dir \
+    pytest \
+    pytest-asyncio \
+    black \
+    flake8 \
+    mypy
+
+# Development environment variables
+ENV ENVIRONMENT=development
+ENV DEBUG=true
+ENV LOG_LEVEL=DEBUG
+ENV RELOAD=true
+
+# Switch back to non-root user
+USER sme_erp
+
+# Development start command with hot reload
+CMD ["sh", "-c", "uvicorn app.main:app --host $UVICORN_HOST --port $UVICORN_PORT --reload"]
+
+# =============================================================================
+# USAGE INSTRUCTIONS:
+#
+# 1. Build production image:
+#    docker build --target production -t sme-erp:prod .
+#
+# 2. Build development image:
+#    docker build --target development -t sme-erp:dev .
+#
+# 3. Run production container:
+#    docker run -p 8000:8000 --env-file .env.prod sme-erp:prod
+#
+# 4. Run development container:
+#    docker run -p 8000:8000 -v $(pwd):/app --env-file .env sme-erp:dev
+#
+# 5. Multi-stage build with specific target:
+#    docker build --target production --no-cache -t sme-erp:latest .
+#
+# 6. Security scan:
+#    docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+#      aquasec/trivy image sme-erp:prod
+#
+# 7. Size optimization check:
+#    docker images | grep sme-erp
+#
+# =============================================================================

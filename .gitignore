@@ -1,0 +1,48 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Database files
+*.db
+*.sqlite*
+*.db-journal
+
+# Log files
+*.log
+logs/
+
+# Python cache & build
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Export artifacts
+exports/
+tmp/
+backups/*.db
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+.vscode/settings.json
+*.swp
+*.swo
+
+# Development artifacts
+coverage.xml
+.coverage
+htmlcov/

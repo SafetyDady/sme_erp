@@ -1,0 +1,23 @@
+from fastapi import APIRouter
+from app.api.v1.auth.router import router as auth_router
+from app.api.v1.users.router import router as users_router
+from app.api.v1.inventory.router import router as inventory_router
+from app.api.v1.inventory.routes import router as new_inventory_router
+from app.api.v1.inventory.reports import router as inventory_reports_router
+
+api_router = APIRouter()
+
+# Include auth routes
+api_router.include_router(auth_router)
+
+# Include user management routes (Phase 8 Productization)
+api_router.include_router(users_router, prefix="/users", tags=["User Management"])
+
+# Include inventory routes  
+api_router.include_router(inventory_router)
+
+# Include new ERP inventory routes
+api_router.include_router(new_inventory_router)
+
+# Include inventory reports routes (Phase 8 Task 4)
+api_router.include_router(inventory_reports_router)
