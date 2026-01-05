@@ -5,6 +5,9 @@
 **Date:** 2026-01-05  
 **Objective:** Replace non-deterministic test infrastructure with transactional DB isolation
 
+**⚠️ CRITICAL FIX:** Resolved workspace path confusion `/workspace` ↔ `/workspaces/sme_erp`  
+**Solution:** Created symlink `/workspace/backend -> /workspaces/sme_erp/backend` for unified access
+
 ---
 
 ## Dependency Versions
