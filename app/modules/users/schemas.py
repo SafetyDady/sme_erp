@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional
 from datetime import datetime
 from app.modules.users.models import UserRole
@@ -19,8 +19,8 @@ class UserOut(BaseModel):
     is_active: bool
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(
+from_attributes=True)
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None

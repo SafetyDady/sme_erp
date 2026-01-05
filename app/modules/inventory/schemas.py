@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
@@ -47,8 +47,8 @@ class ItemOut(ItemBase):
     created_by_id: int
     updated_by_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(
+from_attributes=True)
 
 # Location schemas
 class LocationBase(BaseModel):
@@ -75,8 +75,8 @@ class LocationOut(LocationBase):
     created_by_id: int
     updated_by_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(
+from_attributes=True)
 
 # Stock Transaction schemas
 class StockTransactionBase(BaseModel):
@@ -138,8 +138,8 @@ class StockLedgerOut(BaseModel):
     created_by_id: int
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(
+from_attributes=True)
 
 class CurrentStockOut(BaseModel):
     """Current stock summary by item and location"""
@@ -152,5 +152,5 @@ class CurrentStockOut(BaseModel):
     current_quantity: Decimal
     last_transaction_date: Optional[datetime]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(
+from_attributes=True)
