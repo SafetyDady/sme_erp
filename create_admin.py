@@ -21,7 +21,10 @@ def create_admin_user():
     db: Session = SessionLocal()
     try:
         # Check if admin user already exists
-        admin_user = db.query(User).filter(User.email == "admin@sme-erp.com").first()
+        admin_email = os.getenv("ADMIN_EMAIL", "admin@company.com")  
+        admin_password = os.getenv("ADMIN_PASSWORD", "change_me_admin")
+        
+        admin_user = db.query(User).filter(User.email == admin_email).first()
         
         if admin_user:
             print("Admin user already exists!")
@@ -31,8 +34,8 @@ def create_admin_user():
         
         # Create admin user
         admin_user = User(
-            email="admin@sme-erp.com",
-            hashed_password=hash_password("admin123"),
+            email=admin_email,
+            hashed_password=hash_password(admin_password),
             role=UserRole.SUPER_ADMIN,
             is_active=True
         )
@@ -42,8 +45,8 @@ def create_admin_user():
         db.refresh(admin_user)
         
         print("✅ Admin user created successfully!")
-        print("📧 Email: admin@sme-erp.com")
-        print("🔑 Password: admin123")
+        print(f"📧 Email: {admin_email}")
+        print("🔑 Password: [From environment]")
         print("👑 Role: SUPER_ADMIN")
         print("⚠️  Please change the password after first login!")
         

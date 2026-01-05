@@ -83,8 +83,8 @@ class StockTransactionBase(BaseModel):
     item_id: int
     location_id: int
     transaction_type: TransactionType
-    quantity: Decimal = Field(..., decimal_places=3, description="Transaction quantity")
-    unit_cost: Optional[Decimal] = Field(None, decimal_places=2)
+    quantity: Decimal = Field(..., description="Transaction quantity")
+    unit_cost: Optional[Decimal] = Field(None)
     reference_no: Optional[str] = Field(None, max_length=100)
     notes: Optional[str] = Field(None, max_length=500)
 
@@ -92,8 +92,8 @@ class StockInTransaction(BaseModel):
     """Stock IN transaction"""
     item_id: int
     location_id: int
-    quantity: Decimal = Field(..., gt=0, decimal_places=3)
-    unit_cost: Optional[Decimal] = Field(None, decimal_places=2)
+    quantity: Decimal = Field(..., gt=0)
+    unit_cost: Optional[Decimal] = Field(None)
     reference_no: Optional[str] = Field(None, max_length=100)
     notes: Optional[str] = Field(None, max_length=500)
 
@@ -118,7 +118,7 @@ class StockAdjustmentTransaction(BaseModel):
     """Stock ADJUSTMENT transaction"""
     item_id: int
     location_id: int
-    quantity: Decimal = Field(..., decimal_places=3, description="Adjustment quantity (can be negative)")
+    quantity: Decimal = Field(..., description="Adjustment quantity (can be negative)")
     reference_no: Optional[str] = Field(None, max_length=100)
     notes: Optional[str] = Field(None, max_length=500)
 

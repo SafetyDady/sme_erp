@@ -9,6 +9,7 @@ Enterprise Resource Planning system for Small and Medium Enterprises with comple
 ## 🚀 Quick Start Commands
 
 ### Development
+
 ```bash
 # 1. Navigate to backend directory
 cd /workspaces/sme_erp/backend
@@ -22,6 +23,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Production
+
 ```bash
 # Production deployment (see RUNBOOK_DEPLOYMENT.md)
 ENVIRONMENT=production uvicorn app.main:app --host 0.0.0.0 --port 8000
@@ -81,8 +83,8 @@ Visit: `http://localhost:8001/docs`
 ## Default Admin Credentials
 
 ```
-Email: admin@sme-erp.com
-Password: admin123
+Email: Set in your .env file
+Password: Set in your .env file
 Role: SUPER_ADMIN
 ```
 
@@ -107,8 +109,8 @@ DATABASE_URL=sqlite:///./sme_erp.db
 1. Visit `http://localhost:8001/docs`
 2. Click **"Authorize"** button (🔓) in top-right corner
 3. Enter credentials:
-   - **Username**: `admin@sme-erp.com`
-   - **Password**: `admin123`
+   - **Username**: Your configured admin email
+   - **Password**: Your configured admin password
 4. Click **"Authorize"**
 5. Try protected endpoints - they'll now work with authentication!
 
@@ -117,7 +119,7 @@ DATABASE_URL=sqlite:///./sme_erp.db
 ```bash
 curl -X POST "http://localhost:8001/api/v1/auth/login" \
   -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "username=admin@sme-erp.com&password=admin123"
+  -d "username=YOUR_ADMIN_EMAIL&password=YOUR_ADMIN_PASSWORD"
 ```
 
 Response:
@@ -202,7 +204,7 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 
 1. **Open Swagger UI**: http://localhost:8001/docs
 2. **See Authorize button**: 🔓 (top-right corner)
-3. **Login with admin**: admin@sme-erp.com / admin123
+3. **Login with admin**: Use credentials from your setup
 4. **Test protected endpoints**: Try `/inventory/items`
 5. **Check lock icons**: 🔒 on protected endpoints
 
