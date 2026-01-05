@@ -46,3 +46,8 @@ backups/*.db
 coverage.xml
 .coverage
 htmlcov/
+# Local development artifacts
+local_only/
+
+# Local development artifacts
+local_only/

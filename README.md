@@ -1,6 +1,31 @@
 # SME ERP Authentication System
 
+**Project Root:** `/workspaces/sme_erp/backend/`  
+**Entry Point:** `app/main.py`  
+**Framework:** FastAPI with SQLAlchemy
+
 Enterprise Resource Planning system for Small and Medium Enterprises with complete OAuth2 authentication.
+
+## 🚀 Quick Start Commands
+
+### Development
+```bash
+# 1. Navigate to backend directory
+cd /workspaces/sme_erp/backend
+
+# 2. Setup environment
+cp .env.example .env
+pip install -r requirements.txt
+
+# 3. Start server
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+### Production
+```bash
+# Production deployment (see RUNBOOK_DEPLOYMENT.md)
+ENVIRONMENT=production uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
 
 ## Features
 
