@@ -202,4 +202,4 @@ def audit_stock_adjustment(db: Session, request: Request, user: User, ledger_ent
     )
 
 # Global audit service instance
-audit_service = AuditService()
+# audit_service = AuditLogger()  # Fixed C02: Use existing class

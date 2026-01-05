@@ -56,7 +56,7 @@ class Location(Base):
     # Relationships
     children = relationship("Location", back_populates="parent", remote_side=[parent_id])
     parent = relationship("Location", back_populates="children", remote_side=[id])
-    stock_ledger_entries = relationship("StockLedger", back_populates="location")
+    stock_ledger_entries = relationship("StockLedger", back_populates="location", foreign_keys="StockLedger.location_id")
 
     __table_args__ = (
         CheckConstraint("location_type IN ('WAREHOUSE', 'BIN', 'ZONE')", name="check_location_type"),

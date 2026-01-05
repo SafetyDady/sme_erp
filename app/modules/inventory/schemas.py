@@ -101,7 +101,7 @@ class StockOutTransaction(BaseModel):
     """Stock OUT transaction"""
     item_id: int
     location_id: int
-    quantity: Decimal = Field(..., gt=0, decimal_places=3)
+    quantity: Decimal = Field(..., gt=0)
     reference_no: Optional[str] = Field(None, max_length=100)
     notes: Optional[str] = Field(None, max_length=500)
 
@@ -110,7 +110,7 @@ class StockTransferTransaction(BaseModel):
     item_id: int
     from_location_id: int
     to_location_id: int
-    quantity: Decimal = Field(..., gt=0, decimal_places=3)
+    quantity: Decimal = Field(..., gt=0)
     reference_no: Optional[str] = Field(None, max_length=100)
     notes: Optional[str] = Field(None, max_length=500)
 

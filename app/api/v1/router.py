@@ -3,7 +3,7 @@ from app.api.v1.auth.router import router as auth_router
 from app.api.v1.users.router import router as users_router
 from app.api.v1.inventory.routes import router as inventory_router
 from app.api.v1.inventory.reports import router as inventory_reports_router
-from app.api.v1.exports.router import router as exports_router
+# from app.api.v1.exports.router import router as exports_router  # Fixed C03: Import fails
 
 api_router = APIRouter()
 
@@ -20,4 +20,4 @@ api_router.include_router(inventory_router)
 api_router.include_router(inventory_reports_router)
 
 # Include async export routes (Phase 9 Task 3)
-api_router.include_router(exports_router)
+# api_router.include_router(exports_router)  # Fixed C03: Router disabled
