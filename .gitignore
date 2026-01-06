@@ -28,6 +28,8 @@ dist/
 .venv/
 venv/
 env/
+production_env/
+staging_env/
 
 # Export artifacts
 exports/
