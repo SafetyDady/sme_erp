@@ -179,7 +179,7 @@ def update_user(
             detail="Failed to update user"
         )
 
-@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/users/{user_id}", response_model=dict)
 def disable_user(
     user_id: int,
     db: Session = Depends(get_db),
@@ -225,8 +225,8 @@ def disable_user(
         user.is_active = False
         db.commit()
         
-        # Return 204 No Content for successful deletion
-        return None
+        # Return success message
+        return {"message": "User disabled successfully"}
         
     except Exception as e:
         db.rollback()
