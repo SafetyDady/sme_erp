@@ -43,11 +43,12 @@ app.add_middleware(RequestIdMiddleware)
 
 # Configure CORS
 logger.info(f"🌐 Configuring CORS for environment: {settings.ENVIRONMENT}")
+logger.info(f"CORS Origins: {settings.BACKEND_CORS_ORIGINS}")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.BACKEND_CORS_ORIGINS,
+    allow_origins=["http://localhost:3000", "http://localhost:3001", "*"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 

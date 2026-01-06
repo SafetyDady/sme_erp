@@ -21,7 +21,7 @@ def list_users(
     limit: int = Query(100, ge=1, le=1000),
     role_filter: Optional[UserRole] = Query(None),
     active_filter: Optional[bool] = Query(None),
-    current_user: User = Depends(require_admin_and_above)
+    current_user: User = Depends(require_admin_and_above())
 ):
     """
     List users with optional filtering (ADMIN+ required)
@@ -59,7 +59,7 @@ def get_user(
 def create_user(
     user_data: UserCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin_and_above)
+    current_user: User = Depends(require_admin_and_above())
 ):
     """
     Create new user (ADMIN+ required)
@@ -118,7 +118,7 @@ def update_user(
     user_id: int,
     user_data: UserUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin_and_above)
+    current_user: User = Depends(require_admin_and_above())
 ):
     """
     Update user (ADMIN+ required)
@@ -183,7 +183,7 @@ def update_user(
 def disable_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin_and_above)
+    current_user: User = Depends(require_admin_and_above())
 ):
     """
     Disable user (soft delete) (ADMIN+ required)

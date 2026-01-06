@@ -443,5 +443,5 @@ async def get_inventory_summary(
         "low_stock_items_count": low_stock_items or 0,
         "recent_transactions_7days": recent_transactions,
         "generated_at": datetime.now().isoformat(),
-        "generated_by": current_user.username
+        "generated_by": current_user.email
     }

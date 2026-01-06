@@ -2,13 +2,13 @@ import os
 from typing import Optional, List
 from dotenv import load_dotenv
 
-# Load environment-specific .env file
+# Load environment-specific .env file FIRST
 env = os.getenv("ENVIRONMENT", "dev")
 env_file = f".env.{env}"
 if os.path.exists(env_file):
-    load_dotenv(env_file)
+    load_dotenv(env_file, override=True)
 else:
-    load_dotenv()  # Fallback to .env
+    load_dotenv(override=True)  # Fallback to .env
 
 class Settings:
     # Environment
